@@ -1,0 +1,6 @@
+<h1> Last 5 Registered Temperatures </h1>
+
+
+{% for temp in latest_temps_list %}
+     <li> In {{ temp.time_stamp }} the Temperature was: {{ temp.temperature }} Celsius</li>
+{% endfor %}
