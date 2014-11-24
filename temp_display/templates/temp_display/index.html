@@ -1,6 +1,115 @@
-<h1> Last 5 Registered Temperatures </h1>
+{% load staticfiles %}
+<html>
+
+<head>
+    <link href="{% static '../static/dist/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+</head>
+
+<script src="{% static '../static/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static '../static/Chartjs/Chart.js' %}"></script>
+
+<h1> Main View </h1>
+
+<h2> Temperature in the Last Hour </h2>
+<div class="row">
+    <div class="col-md-6">
+        <div style="width:100%">
+            <div>
+                <canvas id="canvas_last_hour" height="450" width="600"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2> Temperature in the Last 24 Hours </h2>
+<div class="row">
+    <div class="col-md-6">
+        <div style="width:100%">
+            <div>
+                <canvas id="canvas_last_24_hours" height="450" width="600"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2> Temperature in the Last Week </h2>
+<div class="row">
+    <div class="col-md-6">
+        <div style="width:100%">
+            <div>
+                <canvas id="canvas_last_1_month" height="450" width="600"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Plots last hour data at 5-min intervals -->
+<script>
+    var line_last_hour_data = {
+        labels : [{% for num in last_hour_temperature %} "{{ num.time_stamp }}", {% endfor %}],
+        datasets : [
+            {
+                label: "Temperature last hour",
+                fillColor : "rgba(120,120,220,0.2)",
+                strokeColor : "rgba(120,120,220,1)",
+                pointColor : "rgba(220,220,220,1)",
+                pointStrokeColor : "#fff",
+                pointHighlightFill : "#fff",
+                pointHighlightStroke : "rgba(220,220,220,1)",
+                data : [{% for num in last_hour_temperature %} "{{ num.temperature }}", {% endfor %}]
+            }
+        ]
+    };
+
+    var line_last_24_hours = {
+        labels : [{% for num in last_24_hours %} "{{ num.time_stamp }}", {% endfor %}],
+        datasets : [
+            {
+                label: "Temperature last 24 hour",
+                fillColor : "rgba(120,120,220,0.2)",
+                strokeColor : "rgba(120,120,220,1)",
+                pointColor : "rgba(220,220,220,1)",
+                pointStrokeColor : "#fff",
+                pointHighlightFill : "#fff",
+                pointHighlightStroke : "rgba(220,220,220,1)",
+                data : [{% for num in last_24_hours %} "{{ num.temperature }}", {% endfor %}]
+            }
+        ]
+    };
+
+    var line_last_1_month = {
+        labels : [{% for num in last_1_month %} "{{ num.time_stamp }}", {% endfor %}],
+        datasets : [
+            {
+                label: "Temperature last 24 hour",
+                fillColor : "rgba(120,120,220,0.2)",
+                strokeColor : "rgba(120,120,220,1)",
+                pointColor : "rgba(220,220,220,1)",
+                pointStrokeColor : "#fff",
+                pointHighlightFill : "#fff",
+                pointHighlightStroke : "rgba(220,220,220,1)",
+                data : [{% for num in last_1_month %} "{{ num.temperature }}", {% endfor %}]
+            }
+        ]
+    };
+
+    window.onload = function(){
+        var ctx = document.getElementById("canvas_last_hour").getContext("2d");
+        window.myLine = new Chart(ctx).Line(line_last_hour_data, {
+            responsive: true
+        });
+
+        var ctx2 = document.getElementById("canvas_last_24_hours").getContext("2d");
+        window.myLine = new Chart(ctx2).Line(line_last_24_hours, {
+            responsive: true
+        });
+
+        var ctx3 = document.getElementById("canvas_last_1_month").getContext("2d");
+        window.myLine = new Chart(ctx3).Line(line_last_1_month, {
+            responsive: true
+        });
+    }
+</script>
 
 
-{% for temp in latest_temps_list %}
-     <li> In {{ temp.time_stamp }} the Temperature was: {{ temp.temperature }} Celsius</li>
-{% endfor %}
+</html>
