@@ -1,43 +1,93 @@
 {% load staticfiles %}
-<html>
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
+    <title>[PiTemp] - Dashboard</title>
     <link href="{% static '../static/dist/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
 </head>
+
+<body>
 
 <script src="{% static '../static/dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static '../static/Chartjs/Chart.js' %}"></script>
 
-<h1> Main View </h1>
+<div class="container">
+    <h1> Temperature Dashboard </h1>
 
-<h2> Temperature in the Last Hour </h2>
-<div class="row">
-    <div class="col-md-6">
-        <div style="width:100%">
-            <div>
-                <canvas id="canvas_last_hour" height="450" width="600"></canvas>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-11">
+                <h2>Summary</h2>
+                <div class="container">
+                    <h3><p class="bg-success"> Current temperature: {% for num in current_temperature %} {{ num.temperature|stringformat:"1.2f" }} {% endfor %} Celsius</p></h3>
+                    <h3><p class="bg-info"> Lowest temperature: {% for num in lowest_24_hours %} {{ num.temperature|stringformat:"1.2f" }} Celsius on {{ num.time_stamp }} {% endfor %} </p></h3>
+                    <h3><p class="bg-danger"> Highest temperature: {% for num in highest_24_hours %} {{ num.temperature|stringformat:"1.2f" }} Celsius on {{ num.time_stamp }} {% endfor %} </p></h3>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<h2> Temperature in the Last 24 Hours </h2>
-<div class="row">
-    <div class="col-md-6">
-        <div style="width:100%">
-            <div>
-                <canvas id="canvas_last_24_hours" height="450" width="600"></canvas>
+    <div class="container">
+        <h2>Graphs</h2>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3> Last Hour </h3>
+                    <div style="width:100%">
+                        <div>
+                            <canvas id="canvas_last_hour" height="200" ></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h3> Last 24 Hours </h3>
+                    <div style="width:100%">
+                        <div>
+                            <canvas id="canvas_last_24_hours" height="200" ></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<h2> Temperature in the Last Week </h2>
-<div class="row">
-    <div class="col-md-6">
-        <div style="width:100%">
-            <div>
-                <canvas id="canvas_last_1_month" height="450" width="600"></canvas>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3> Last Week </h3>
+                    <div style="width:100%">
+                        <div>
+                            <canvas id="canvas_last_1_week" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h3> Last Month </h3>
+                    <div style="width:100%">
+                        <div>
+                            <canvas id="canvas_last_1_month" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h3> Last 3 Months </h3>
+                    <div style="width:100%">
+                        <div>
+                            <canvas id="canvas_last_3_month" height="200" ></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h3> Last Year </h3>
+                    <div style="width:100%">
+                        <div>
+                            <canvas id="canvas_last_12_month" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -46,7 +96,7 @@
 <!-- Plots last hour data at 5-min intervals -->
 <script>
     var line_last_hour_data = {
-        labels : [{% for num in last_hour_temperature %} "{{ num.time_stamp }}", {% endfor %}],
+        labels : [{% for num in last_hour_temperature %} "{{ num.time_stamp.minute }}", {% endfor %}],
         datasets : [
             {
                 label: "Temperature last hour",
@@ -62,7 +112,7 @@
     };
 
     var line_last_24_hours = {
-        labels : [{% for num in last_24_hours %} "{{ num.time_stamp }}", {% endfor %}],
+        labels : [{% for num in last_24_hours %} "{{ num.time_stamp|date }}", {% endfor %}],
         datasets : [
             {
                 label: "Temperature last 24 hour",
@@ -73,6 +123,22 @@
                 pointHighlightFill : "#fff",
                 pointHighlightStroke : "rgba(220,220,220,1)",
                 data : [{% for num in last_24_hours %} "{{ num.temperature }}", {% endfor %}]
+            }
+        ]
+    };
+
+    var line_last_1_week = {
+        labels : [{% for num in last_1_week %} "{{ num.time_stamp }}", {% endfor %}],
+        datasets : [
+            {
+                label: "Temperature last 24 hour",
+                fillColor : "rgba(120,120,220,0.2)",
+                strokeColor : "rgba(120,120,220,1)",
+                pointColor : "rgba(220,220,220,1)",
+                pointStrokeColor : "#fff",
+                pointHighlightFill : "#fff",
+                pointHighlightStroke : "rgba(220,220,220,1)",
+                data : [{% for num in last_1_week %} "{{ num.temperature }}", {% endfor %}]
             }
         ]
     };
@@ -93,6 +159,38 @@
         ]
     };
 
+    var line_last_3_month = {
+        labels : [{% for num in last_3_month %} "{{ num.time_stamp }}", {% endfor %}],
+        datasets : [
+            {
+                label: "Temperature last 24 hour",
+                fillColor : "rgba(120,120,220,0.2)",
+                strokeColor : "rgba(120,120,220,1)",
+                pointColor : "rgba(220,220,220,1)",
+                pointStrokeColor : "#fff",
+                pointHighlightFill : "#fff",
+                pointHighlightStroke : "rgba(220,220,220,1)",
+                data : [{% for num in last_3_month %} "{{ num.temperature }}", {% endfor %}]
+            }
+        ]
+    };
+
+    var line_last_12_month = {
+        labels : [{% for num in last_12_month %} "{{ num.time_stamp }}", {% endfor %}],
+        datasets : [
+            {
+                label: "Temperature last 24 hour",
+                fillColor : "rgba(120,120,220,0.2)",
+                strokeColor : "rgba(120,120,220,1)",
+                pointColor : "rgba(220,220,220,1)",
+                pointStrokeColor : "#fff",
+                pointHighlightFill : "#fff",
+                pointHighlightStroke : "rgba(220,220,220,1)",
+                data : [{% for num in last_12_month %} "{{ num.temperature }}", {% endfor %}]
+            }
+        ]
+    };
+
     window.onload = function(){
         var ctx = document.getElementById("canvas_last_hour").getContext("2d");
         window.myLine = new Chart(ctx).Line(line_last_hour_data, {
@@ -104,12 +202,28 @@
             responsive: true
         });
 
-        var ctx3 = document.getElementById("canvas_last_1_month").getContext("2d");
-        window.myLine = new Chart(ctx3).Line(line_last_1_month, {
+        var ctx3 = document.getElementById("canvas_last_1_week").getContext("2d");
+        window.myLine = new Chart(ctx3).Line(line_last_1_week, {
+            responsive: true
+        });
+
+        var ctx4 = document.getElementById("canvas_last_1_month").getContext("2d");
+        window.myLine = new Chart(ctx4).Line(line_last_1_month, {
+            responsive: true
+        });
+        var ctx5 = document.getElementById("canvas_last_3_month").getContext("2d");
+        window.myLine = new Chart(ctx5).Line(line_last_3_month, {
+            responsive: true
+        });
+        var ctx6 = document.getElementById("canvas_last_12_month").getContext("2d");
+        window.myLine = new Chart(ctx6).Line(line_last_12_month, {
             responsive: true
         });
     }
+
+
 </script>
-
-
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+</body>
 </html>
